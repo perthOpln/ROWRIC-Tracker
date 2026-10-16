@@ -1138,6 +1138,7 @@
         let currentUser = null; // Current logged in user
         let currentUserName = null; // User's display name
         let rafId = null; // For requestAnimationFrame
+        let timerCheckInterval = null; // For polling timer state
 
         // Initialize calendar to current month
         function initializeCalendarDefaults() {
@@ -1292,6 +1293,9 @@
 
                 // Load data
                 loadData();
+
+                // Start polling for timer state changes (every 5 seconds)
+                timerCheckInterval = setInterval(checkActiveTimer, 5000);
             } catch (error) {
                 console.error('Authentication error:', error);
                 showStatus('authStatus', 'Authentication failed. Please try again.', 'error');
@@ -1322,6 +1326,13 @@
             localStorage.removeItem('currentUser');
             currentUser = null;
             currentUserName = null;
+
+            // Stop timer polling
+            if (timerCheckInterval) {
+                clearInterval(timerCheckInterval);
+                timerCheckInterval = null;
+            }
+
             document.getElementById('appSection').classList.add('hidden');
             document.getElementById('authSection').classList.remove('hidden');
             document.getElementById('loginUsername').value = '';
@@ -1339,6 +1350,9 @@
                 document.getElementById('appSection').classList.remove('hidden');
                 updateGreeting();
                 loadData();
+
+                // Start polling for timer state changes (every 5 seconds)
+                timerCheckInterval = setInterval(checkActiveTimer, 5000);
             }
         }
 
@@ -1444,6 +1458,9 @@
                     second: '2-digit',
                     hour12: false
                 }) + ')', 'success');
+            } else if (currentUser) {
+                // Check for active timer from other devices
+                checkActiveTimer();
             }
 
             // Hide loading overlay (no auto-load)
@@ -1481,6 +1498,10 @@
             startTime = new Date();
             isRunning = true;
             localStorage.setItem('timerStartTime', startTime.toISOString());
+
+            // Save to Google Sheets for cross-device sync
+            saveTimerState('start', startTime.toISOString());
+
             updateTimerButton();
             startTimerDisplay();
         }
@@ -1498,6 +1519,9 @@
                 endTime,
                 duration
             });
+
+            // Clear timer state from Google Sheets
+            saveTimerState('stop');
 
             // Save to Google Sheets
             saveSession(actualStartTime, endTime, duration);
@@ -1568,6 +1592,67 @@
             const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((ms % (1000 * 60)) / 1000);
             return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        // Timer state sync with Google Sheets
+        async function saveTimerState(action, startTime = null) {
+            if (!currentUser) return;
+
+            try {
+                const payload = {
+                    action: action === 'start' ? 'startTimer' : 'stopTimer',
+                    data: {
+                        username: currentUser.username,
+                        startTime: startTime
+                    }
+                };
+
+                await fetch(scriptUrl, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            } catch (error) {
+                console.error('Error saving timer state:', error);
+            }
+        }
+
+        async function checkActiveTimer() {
+            if (!currentUser) return;
+
+            try {
+                const response = await fetch(`${scriptUrl}?action=getActiveTimer&username=${currentUser.username}`);
+                const data = await response.json();
+
+                if (data.active && !isRunning) {
+                    // Timer is active on another device
+                    startTime = new Date(data.startTime);
+                    isRunning = true;
+                    localStorage.setItem('timerStartTime', startTime.toISOString());
+                    updateTimerButton();
+                    startTimerDisplay();
+                    showStatus('timerStatus', 'Timer is running from another device!', 'success');
+                } else if (!data.active && isRunning) {
+                    // Timer was stopped on another device
+                    isRunning = false;
+                    startTime = null;
+                    localStorage.removeItem('timerStartTime');
+                    if (rafId) {
+                        cancelAnimationFrame(rafId);
+                        rafId = null;
+                    }
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    if (domCache.timerDisplay) {
+                        domCache.timerDisplay.textContent = '00:00:00';
+                    }
+                    updateTimerButton();
+                    showStatus('timerStatus', 'Timer was stopped on another device', 'info');
+                }
+            } catch (error) {
+                console.error('Error checking active timer:', error);
+            }
         }
 
         // Google Sheets integration
