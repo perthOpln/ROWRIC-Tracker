@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ROWRIC Tracker</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ROWRIC Tracker">
     <meta name="theme-color" content="#0B0B0D">
+    <meta name="format-detection" content="telephone=no">
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
     <style>
@@ -62,6 +63,7 @@
         html {
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            touch-action: manipulation;
         }
 
         body {
@@ -73,6 +75,8 @@
             letter-spacing: -0.015em;
             min-height: 100vh;
             contain: layout style paint;
+            -webkit-tap-highlight-color: transparent;
+            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
         }
 
         .container {
@@ -85,7 +89,7 @@
 
         /* Header */
         .header {
-            padding: var(--space-3xl) var(--space-xl) var(--space-lg);
+            padding: var(--space-xl) var(--space-xl) var(--space-md);
             text-align: center;
             background: var(--color-bg-primary);
             position: relative;
@@ -93,25 +97,25 @@
         }
 
         .header h1 {
-            font-size: 48px;
+            font-size: 32px;
             font-weight: 700;
             letter-spacing: -0.02em;
-            margin-bottom: var(--space-sm);
+            margin-bottom: var(--space-xs);
             color: var(--color-text-primary);
         }
 
         .header p {
-            font-size: 17px;
+            font-size: 14px;
             color: var(--color-text-secondary);
             font-weight: 600;
             letter-spacing: -0.01em;
         }
 
         .header-greeting {
-            font-size: 16px;
+            font-size: 13px;
             color: var(--color-accent);
             font-weight: 600;
-            margin-bottom: var(--space-xs);
+            margin-bottom: 4px;
         }
 
         .header-title-row {
@@ -130,12 +134,29 @@
             border-radius: var(--radius-md);
         }
 
+        .header-logo-top-left {
+            position: absolute;
+            top: var(--space-xl);
+            left: var(--space-xl);
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-md);
+        }
+
         .clock-container {
             position: absolute;
             top: var(--space-xl);
             right: var(--space-xl);
             text-align: right;
             will-change: contents;
+        }
+
+        .clock-date {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 4px;
         }
 
         .clock {
@@ -229,10 +250,17 @@
             font-size: 17px;
             font-weight: 600;
             transition: background var(--transition-base);
+            min-height: 48px;
+            min-width: 48px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .auth-form button:hover {
             background: var(--color-accent-hover);
+        }
+
+        .auth-form button:active {
+            transform: scale(0.98);
         }
 
         .auth-toggle {
@@ -272,17 +300,21 @@
 
         /* Timer Section */
         .timer-section {
-            padding: var(--space-xl) var(--space-xl);
+            padding: var(--space-md) var(--space-xl);
             text-align: center;
             background: var(--color-bg-primary);
             contain: layout style;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .timer-display {
-            font-size: 96px;
+            font-size: 64px;
             font-weight: 700;
             color: var(--color-text-primary);
-            margin: var(--space-xl) 0;
+            margin: var(--space-md) 0;
             font-family: var(--font-family-mono);
             letter-spacing: -0.05em;
             line-height: 1;
@@ -301,10 +333,18 @@
             letter-spacing: -0.01em;
             background: var(--color-accent);
             color: var(--color-text-primary);
+            min-height: 48px;
+            min-width: 48px;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0 auto;
         }
 
         .timer-button:hover {
             background: var(--color-accent-hover);
+        }
+
+        .timer-button:active {
+            transform: scale(0.98);
         }
 
         .timer-button.stop {
@@ -317,33 +357,36 @@
 
         /* Stats Section */
         .stats-section {
-            padding: var(--space-xl);
+            padding: var(--space-md);
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: var(--space-md);
+            gap: var(--space-xs);
             background: var(--color-bg-primary);
             contain: layout;
         }
 
         .stat-card {
             background: var(--color-bg-elevated);
-            padding: var(--space-md);
-            border-radius: var(--radius-lg);
+            padding: var(--space-xs);
+            border-radius: var(--radius-sm);
             border: 1px solid var(--color-border);
             contain: layout style;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .stat-card h3 {
             color: var(--color-text-tertiary);
-            margin-bottom: var(--space-xs);
-            font-size: 10px;
+            margin-bottom: 2px;
+            font-size: 9px;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
+            letter-spacing: 0.05em;
         }
 
         .stat-card .value {
-            font-size: 24px;
+            font-size: 16px;
             font-weight: 700;
             color: var(--color-text-primary);
             letter-spacing: -0.02em;
@@ -352,7 +395,7 @@
 
         /* Calendar Section */
         .calendar-section {
-            padding: var(--space-xl);
+            padding: var(--space-md);
             background: var(--color-bg-secondary);
             border-top: 1px solid var(--color-border);
             contain: layout style;
@@ -360,28 +403,35 @@
 
         .calendar-controls {
             display: flex;
-            gap: var(--space-sm);
-            margin-bottom: var(--space-lg);
+            gap: var(--space-xs);
+            margin-bottom: var(--space-sm);
             flex-wrap: wrap;
             align-items: center;
         }
 
         .timeframe-btn {
-            padding: 8px 16px;
+            padding: 6px 12px;
             background: var(--color-bg-elevated);
             color: var(--color-text-secondary);
             border: 1px solid var(--color-border);
             border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             transition: all var(--transition-base);
             position: relative;
+            min-height: 36px;
+            min-width: 36px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .timeframe-btn:hover {
             border-color: var(--color-accent);
             color: var(--color-text-primary);
+        }
+
+        .timeframe-btn:active {
+            transform: scale(0.98);
         }
 
         .timeframe-btn.active {
@@ -503,41 +553,41 @@
         .activity-calendar {
             display: flex;
             flex-direction: column;
-            gap: var(--space-md);
-            margin-top: var(--space-lg);
+            gap: var(--space-xs);
+            margin-top: var(--space-sm);
             contain: layout;
         }
 
         .calendar-month {
             display: flex;
             flex-direction: column;
-            gap: var(--space-xs);
+            gap: 4px;
             align-items: center;
         }
 
         .calendar-month-header {
             display: flex;
             align-items: center;
-            gap: var(--space-sm);
-            margin-bottom: var(--space-xs);
+            gap: var(--space-xs);
+            margin-bottom: 4px;
             width: 100%;
             max-width: fit-content;
         }
 
         .calendar-month-header .month-label {
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 700;
             color: var(--color-text-primary);
         }
 
         .calendar-month-header .year-label {
-            font-size: 11px;
+            font-size: 9px;
             color: var(--color-text-dim);
             font-weight: 600;
         }
 
         .calendar-month-header .month-total {
-            font-size: 11px;
+            font-size: 9px;
             color: var(--color-accent);
             font-weight: 600;
             margin-left: auto;
@@ -545,36 +595,39 @@
 
         .calendar-grid {
             display: grid;
-            grid-template-columns: repeat(7, 34px);
-            gap: 4px;
+            grid-template-columns: repeat(7, 28px);
+            gap: 2px;
             justify-content: flex-start;
-            margin-left: 20px;
+            margin-left: 10px;
             contain: layout;
         }
 
         .calendar-grid .day-label {
             text-align: center;
-            font-size: 11px;
+            font-size: 8px;
             color: var(--color-text-faint);
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            padding: 4px 0;
+            letter-spacing: 0.05em;
+            padding: 2px 0;
         }
 
         .calendar-grid .day-cell {
-            width: 30px;
-            height: 30px;
-            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            border-radius: 3px;
             background: var(--color-bg-tertiary);
             cursor: pointer;
             transition: background var(--transition-base);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 11px;
+            font-size: 9px;
             font-weight: 600;
             color: var(--color-text-tertiary);
+            min-width: 24px;
+            min-height: 24px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .day-cell:hover {
@@ -583,6 +636,10 @@
 
         .day-cell:hover {
             background: var(--color-border-hover);
+        }
+
+        .day-cell:active {
+            transform: scale(0.95);
         }
 
         /* Reversed green: darker = less time, lighter = more time */
@@ -601,7 +658,7 @@
         }
 
         .day-number {
-            font-size: 11px;
+            font-size: 9px;
             font-weight: 600;
             color: var(--color-text-tertiary);
         }
@@ -609,16 +666,16 @@
         .calendar-legend {
             display: flex;
             align-items: center;
-            gap: var(--space-sm);
-            margin-top: var(--space-lg);
-            font-size: 13px;
+            gap: 4px;
+            margin-top: var(--space-sm);
+            font-size: 10px;
             color: var(--color-text-tertiary);
             font-weight: 700;
         }
 
         .legend-item {
-            width: 20px;
-            height: 20px;
+            width: 14px;
+            height: 14px;
             border-radius: 2px;
         }
 
@@ -631,59 +688,62 @@
         .calendar-stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: var(--space-md);
-            margin-bottom: var(--space-lg);
+            gap: var(--space-xs);
+            margin-bottom: var(--space-sm);
         }
 
         .calendar-stat-item {
             background: var(--color-bg-elevated);
-            padding: var(--space-md);
-            border-radius: var(--radius-md);
+            padding: var(--space-xs);
+            border-radius: var(--radius-sm);
             border: 1px solid var(--color-border);
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .calendar-stat-item .stat-label {
-            font-size: 10px;
+            font-size: 8px;
             color: var(--color-text-faint);
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: var(--space-xs);
+            letter-spacing: 0.05em;
+            margin-bottom: 2px;
         }
 
         .calendar-stat-item .stat-value {
             font-family: var(--font-family-mono);
-            font-size: 20px;
+            font-size: 14px;
             font-weight: 700;
             color: var(--color-accent);
         }
 
         .calendar-stat-item .stat-sub {
-            font-size: 11px;
+            font-size: 9px;
             color: var(--color-text-dim);
             font-weight: 600;
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         /* Notes Section */
         .notes-section {
-            padding: var(--space-xl);
+            padding: var(--space-md);
             background: var(--color-bg-secondary);
             border-top: 1px solid var(--color-border);
         }
 
         .date-selector {
             display: flex;
-            gap: var(--space-md);
-            margin-bottom: var(--space-md);
+            gap: var(--space-xs);
+            margin-bottom: var(--space-xs);
         }
 
         .date-selector input {
-            padding: 14px 18px;
+            padding: 10px 14px;
             border: 1px solid var(--color-border);
             border-radius: var(--radius-md);
-            font-size: 17px;
+            font-size: 14px;
             font-family: inherit;
             background: var(--color-bg-elevated);
             color: var(--color-text-primary);
@@ -696,28 +756,35 @@
         }
 
         .date-selector button {
-            padding: 14px 28px;
+            padding: 10px 20px;
             background: var(--color-bg-elevated);
             color: var(--color-text-primary);
             border: 1px solid var(--color-border);
             border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 17px;
+            font-size: 14px;
             font-weight: 500;
             transition: background var(--transition-base);
+            min-height: 40px;
+            min-width: 40px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .date-selector button:hover {
             background: var(--color-bg-tertiary);
         }
 
+        .date-selector button:active {
+            transform: scale(0.98);
+        }
+
         .note-area {
             width: 100%;
-            min-height: 140px;
-            padding: 18px;
+            min-height: 100px;
+            padding: 12px;
             border: 1px solid var(--color-border);
             border-radius: var(--radius-md);
-            font-size: 17px;
+            font-size: 14px;
             font-family: inherit;
             resize: vertical;
             background: var(--color-bg-elevated);
@@ -731,27 +798,66 @@
         }
 
         .save-note-btn {
-            margin-top: var(--space-md);
-            padding: 14px 28px;
+            margin-top: var(--space-sm);
+            padding: 10px 20px;
             background: var(--color-accent);
             color: var(--color-text-primary);
             border: none;
             border-radius: var(--radius-md);
             cursor: pointer;
-            font-size: 17px;
+            font-size: 14px;
             font-weight: 500;
             transition: background var(--transition-base);
+            min-height: 40px;
+            min-width: 40px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .save-note-btn:hover {
             background: var(--color-accent-hover);
         }
 
+        .save-note-btn:active {
+            transform: scale(0.98);
+        }
+
         /* History Section */
         .history-section {
-            padding: var(--space-xl);
+            padding: var(--space-md);
             background: var(--color-bg-secondary);
             border-top: 1px solid var(--color-border);
+        }
+
+        .logout-section {
+            margin-top: var(--space-md);
+            text-align: center;
+            padding-top: var(--space-md);
+            border-top: 1px solid var(--color-border);
+        }
+
+        .logout-button {
+            padding: 12px 32px;
+            background: var(--color-bg-tertiary);
+            color: var(--color-text-secondary);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all var(--transition-base);
+            min-height: 44px;
+            min-width: 44px;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .logout-button:hover {
+            background: var(--color-bg-elevated);
+            color: var(--color-text-primary);
+            border-color: var(--color-accent);
+        }
+
+        .logout-button:active {
+            transform: scale(0.98);
         }
 
         .history-table {
@@ -759,14 +865,14 @@
             border-collapse: separate;
             border-spacing: 0;
             background: var(--color-bg-elevated);
-            border-radius: var(--radius-lg);
+            border-radius: var(--radius-md);
             overflow: hidden;
             border: 1px solid var(--color-border);
         }
 
         .history-table th,
         .history-table td {
-            padding: 16px;
+            padding: 10px 12px;
             text-align: left;
             border-bottom: 1px solid var(--color-border);
         }
@@ -775,13 +881,13 @@
             background: var(--color-bg-tertiary);
             color: var(--color-text-tertiary);
             font-weight: 600;
-            font-size: 11px;
+            font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 0.08em;
         }
 
         .history-table td {
-            font-size: 15px;
+            font-size: 13px;
             color: var(--color-text-primary);
             font-weight: 600;
         }
@@ -792,6 +898,56 @@
 
         .history-table tr:hover td {
             background: var(--color-bg-tertiary);
+        }
+
+        /* Mobile history cards */
+        .history-cards {
+            display: none;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .history-card {
+            background: var(--color-bg-elevated);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border);
+            padding: var(--space-sm);
+        }
+
+        .history-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xs);
+        }
+
+        .history-card-date {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-text-primary);
+        }
+
+        .history-card-duration {
+            font-family: var(--font-family-mono);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--color-accent);
+        }
+
+        .history-card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--color-text-secondary);
+        }
+
+        .history-card-note {
+            margin-top: var(--space-xs);
+            padding-top: var(--space-xs);
+            border-top: 1px solid var(--color-border);
+            font-size: 12px;
+            color: var(--color-text-primary);
         }
 
         /* Status Messages */
@@ -837,6 +993,11 @@
         .loading-overlay.visible {
             opacity: 1;
             pointer-events: auto;
+            overflow: hidden;
+        }
+
+        body.loading {
+            overflow: hidden;
         }
 
         .spinner {
@@ -879,62 +1040,384 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
+            .header {
+                padding: var(--space-lg) var(--space-md);
+            }
+
             .header h1 {
-                font-size: 36px;
+                font-size: 24px;
             }
 
             .header p {
-                font-size: 15px;
+                font-size: 13px;
+            }
+
+            .header-title-row {
+                flex-direction: column;
+                gap: var(--space-xs);
+            }
+
+            .header-logo {
+                margin-top: 0;
+            }
+
+            .header-logo-top-left {
+                top: var(--space-md);
+                left: var(--space-sm);
+                width: 32px;
+                height: 32px;
+            }
+
+            .clock-container {
+                position: static;
+                text-align: center;
+                margin-top: var(--space-xs);
+            }
+
+            .clock-date {
+                font-size: 10px;
+                margin-bottom: 2px;
+            }
+
+            .clock {
+                font-size: 16px;
             }
 
             .timer-display {
-                font-size: 64px;
+                font-size: 56px;
             }
 
             .timer-button {
-                padding: 16px 44px;
-                font-size: 17px;
+                padding: 14px 40px;
+                font-size: 16px;
+                width: 100%;
+                max-width: 280px;
             }
 
             .stats-section {
                 grid-template-columns: repeat(2, 1fr);
+                padding: var(--space-sm);
+                gap: var(--space-xs);
             }
 
-            .activity-calendar {
-                grid-template-columns: repeat(26, 1fr);
+            .calendar-section {
+                padding: var(--space-sm);
+            }
+
+            .calendar-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--space-xs);
+            }
+
+            .calendar-grid {
+                grid-template-columns: repeat(7, 26px);
+                gap: 2px;
+                margin-left: 0;
+                justify-content: center;
+            }
+
+            .calendar-grid .day-cell {
+                width: 22px;
+                height: 22px;
             }
 
             .date-selector {
                 flex-direction: column;
             }
 
+            .date-selector input,
+            .date-selector button {
+                width: 100%;
+            }
+
+            .history-section {
+                padding: var(--space-md);
+            }
+
             .history-table {
+                display: none;
+            }
+
+            .history-cards {
+                display: flex;
+            }
+
+            .logout-section {
+                margin-top: var(--space-md);
+                padding-top: var(--space-md);
+            }
+
+            .logout-button {
+                padding: 10px 24px;
                 font-size: 13px;
             }
 
-            .history-table th,
-            .history-table td {
-                padding: 12px;
+            .notes-section {
+                padding: var(--space-sm);
+            }
+
+            .timeframe-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .year-dropdown,
+            .month-dropdown {
+                left: 50%;
+                transform: translateX(-50%);
+                min-width: 180px;
+            }
+
+            /* Touch-friendly dropdowns */
+            .year-dropdown.show,
+            .month-dropdown.show {
+                left: 50%;
+                transform: translateX(-50%);
             }
         }
 
         @media (max-width: 480px) {
-            .stats-section {
-                grid-template-columns: 1fr;
+            .container {
+                max-width: 100%;
             }
 
             .header {
-                padding: var(--space-2xl) var(--space-md);
+                padding: var(--space-xl) var(--space-md);
             }
 
-            .clock-container {
-                position: static;
-                text-align: center;
-                margin-top: var(--space-md);
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .header-greeting {
+                font-size: 13px;
             }
 
             .timer-section {
-                padding: var(--space-2xl) var(--space-md);
+                padding: var(--space-lg) var(--space-md);
+            }
+
+            .timer-display {
+                font-size: 48px;
+            }
+
+            .timer-button {
+                padding: 12px 28px;
+                font-size: 15px;
+            }
+
+            .stats-section {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--space-xs);
+                padding: var(--space-sm);
+            }
+
+            .stat-card {
+                padding: var(--space-xs);
+            }
+
+            .stat-card .value {
+                font-size: 14px;
+            }
+
+            .stat-card h3 {
+                font-size: 8px;
+            }
+
+            .calendar-section {
+                padding: var(--space-sm);
+            }
+
+            h2 {
+                font-size: 18px;
+            }
+
+            .calendar-controls {
+                gap: 4px;
+            }
+
+            .timeframe-btn {
+                padding: 6px 10px;
+                font-size: 11px;
+                flex: 1;
+                min-width: 60px;
+            }
+
+            .calendar-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: var(--space-xs);
+            }
+
+            .calendar-stat-item {
+                padding: var(--space-xs);
+            }
+
+            .calendar-stat-item .stat-value {
+                font-size: 13px;
+            }
+
+            .calendar-stat-item .stat-label {
+                font-size: 7px;
+            }
+
+            .calendar-stat-item .stat-sub {
+                font-size: 8px;
+            }
+
+            .calendar-grid {
+                grid-template-columns: repeat(7, 24px);
+                gap: 2px;
+            }
+
+            .calendar-grid .day-cell {
+                width: 20px;
+                height: 20px;
+                font-size: 8px;
+            }
+
+            .calendar-grid .day-label {
+                font-size: 7px;
+                padding: 1px 0;
+            }
+
+            .day-number {
+                font-size: 8px;
+            }
+
+            .calendar-legend {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 4px;
+                font-size: 10px;
+            }
+
+            .legend-item {
+                width: 14px;
+                height: 14px;
+            }
+
+            .notes-section {
+                padding: var(--space-sm);
+            }
+
+            .date-selector input,
+            .date-selector button {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+
+            .note-area {
+                font-size: 13px;
+                padding: 10px;
+            }
+
+            .save-note-btn {
+                width: 100%;
+                padding: 10px 20px;
+            }
+
+            .history-section {
+                padding: var(--space-sm);
+            }
+
+            .history-table {
+                display: none;
+            }
+
+            .history-cards {
+                display: flex;
+            }
+
+            .history-card {
+                padding: var(--space-sm);
+            }
+
+            .history-card-header {
+                margin-bottom: var(--space-xs);
+            }
+
+            .history-card-date {
+                font-size: 12px;
+            }
+
+            .history-card-duration {
+                font-size: 14px;
+            }
+
+            .history-card-details {
+                font-size: 11px;
+                gap: 4px;
+            }
+
+            .history-card-note {
+                font-size: 12px;
+                margin-top: var(--space-xs);
+                padding-top: var(--space-xs);
+            }
+
+            .logout-section {
+                margin-top: var(--space-sm);
+                padding-top: var(--space-sm);
+            }
+
+            .logout-button {
+                padding: 10px 20px;
+                font-size: 12px;
+            }
+
+            /* Auth section improvements */
+            .auth-section {
+                padding: var(--space-md);
+            }
+
+            .auth-container {
+                padding: var(--space-xl);
+            }
+
+            .auth-container h1 {
+                font-size: 24px;
+            }
+
+            .auth-form input {
+                padding: 10px 14px;
+                font-size: 15px;
+            }
+
+            .auth-form button {
+                padding: 12px 20px;
+                font-size: 15px;
+            }
+
+            /* Tooltip adjustments for mobile */
+            .tooltip {
+                font-size: 11px;
+                padding: 6px 10px;
+                max-width: 180px;
+                white-space: normal;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .timer-display {
+                font-size: 42px;
+            }
+
+            .calendar-grid {
+                grid-template-columns: repeat(7, 24px);
+            }
+
+            .calendar-grid .day-cell {
+                width: 20px;
+                height: 20px;
+            }
+
+            .header-logo-top-left {
+                width: 32px;
+                height: 32px;
             }
         }
 
@@ -1008,16 +1491,16 @@
         <!-- Main App Section -->
         <div class="app-section hidden" id="appSection">
             <div class="header">
+                <img src="logo.png" alt="ROWRIC Tracker Logo" class="header-logo header-logo-top-left">
                 <div class="header-greeting" id="headerGreeting">Good Morning</div>
                 <div class="header-title-row">
-                    <img src="logo.png" alt="ROWRIC Tracker Logo" class="header-logo">
                     <h1>ROWRIC Tracker</h1>
                 </div>
                 <div class="clock-container">
+                    <div class="clock-date" id="utc7Date">Mon, 01 Jan 2024</div>
                     <div class="clock" id="utc7Clock">00:00:00</div>
                     <div class="clock-label">UTC+7</div>
                 </div>
-                <button onclick="logout()" style="position: absolute; top: var(--space-xl); left: var(--space-xl); padding: 8px 16px; background: var(--color-bg-tertiary); border: 1px solid var(--color-border); border-radius: var(--radius-md); color: var(--color-text-secondary); cursor: pointer; font-size: 13px; font-weight: 600;">Logout</button>
             </div>
 
             <div class="timer-section">
@@ -1119,6 +1602,10 @@
                     <tbody id="historyTableBody">
                     </tbody>
                 </table>
+                <div class="history-cards" id="historyCards"></div>
+                <div class="logout-section">
+                    <button onclick="logout()" class="logout-button">Logout</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1346,13 +1833,17 @@
                 currentUser = { username: userData.username };
                 currentUserName = userData.name || userData.username;
 
-                document.getElementById('authSection').classList.add('hidden');
-                document.getElementById('appSection').classList.remove('hidden');
-                updateGreeting();
-                loadData();
+                const authSection = document.getElementById('authSection');
+                const appSection = document.getElementById('appSection');
+                if (authSection && appSection) {
+                    authSection.classList.add('hidden');
+                    appSection.classList.remove('hidden');
+                    updateGreeting();
+                    loadData();
 
-                // Start polling for timer state changes (every 5 seconds)
-                timerCheckInterval = setInterval(checkActiveTimer, 5000);
+                    // Start polling for timer state changes (every 5 seconds)
+                    timerCheckInterval = setInterval(checkActiveTimer, 5000);
+                }
             }
         }
 
@@ -1383,9 +1874,6 @@
         // Event listeners for auth forms
         document.getElementById('loginForm').addEventListener('submit', handleLogin);
         document.getElementById('registerForm').addEventListener('submit', handleRegister);
-
-        // Check auth on page load
-        checkAuth();
 
         // UTC+7 helper functions
         function getUTC7Date() {
@@ -1419,8 +1907,23 @@
             const hours = String(utc7.getHours()).padStart(2, '0');
             const minutes = String(utc7.getMinutes()).padStart(2, '0');
             const seconds = String(utc7.getSeconds()).padStart(2, '0');
+
+            // Format date: Mon, 01 Jan 2024
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            const dayName = days[utc7.getDay()];
+            const dayNum = String(utc7.getDate()).padStart(2, '0');
+            const monthName = months[utc7.getMonth()];
+            const year = utc7.getFullYear();
+            const dateStr = `${dayName}, ${dayNum} ${monthName} ${year}`;
+
             if (domCache.utc7Clock) {
                 domCache.utc7Clock.textContent = `${hours}:${minutes}:${seconds}`;
+            }
+
+            const dateElement = document.getElementById('utc7Date');
+            if (dateElement) {
+                dateElement.textContent = dateStr;
             }
         }
 
@@ -1435,12 +1938,15 @@
             cacheDOM();
 
             // Show loading overlay
-            document.getElementById('loadingOverlay').classList.add('visible');
+            showLoading();
 
             // Pre-configure the script URL (no localStorage)
             if (!scriptUrl) {
                 scriptUrl = 'https://script.google.com/macros/s/AKfycbzXOFe3w5VElpiUnWc9tLYTG8YbrGKAmznLQAzH6z0HpxYubo9pzvpTJXfui0tjIA/exec';
             }
+
+            // Check for auto-login
+            checkAuth();
 
             // Check if there's an active timer (keep this for timer persistence)
             const savedStartTime = localStorage.getItem('timerStartTime');
@@ -1449,22 +1955,14 @@
                 isRunning = true;
                 updateTimerButton();
                 startTimerDisplay();
-                showStatus('timerStatus', 'Timer is running! (Started at ' + new Date(savedStartTime).toLocaleString('en-US', {
-                    weekday: 'short',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                }) + ')', 'success');
+                showStatus('timerStatus', 'Timer is running!', 'success');
             } else if (currentUser) {
                 // Check for active timer from other devices
                 checkActiveTimer();
             }
 
             // Hide loading overlay (no auto-load)
-            document.getElementById('loadingOverlay').classList.remove('visible');
+            hideLoading();
 
             // Set today's date for note
             const today = getUTC7Date();
@@ -1546,6 +2044,27 @@
             setTimeout(loadData, 2500);
         }
 
+        function stopTimerFromOtherDevice() {
+            // Timer was stopped on another device
+            isRunning = false;
+            startTime = null;
+            localStorage.removeItem('timerStartTime');
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+            clearInterval(timerInterval);
+            timerInterval = null;
+            if (domCache.timerDisplay) {
+                domCache.timerDisplay.textContent = '00:00:00';
+            }
+            updateTimerButton();
+            showStatus('timerStatus', 'Timer was stopped on another device', 'info');
+
+            // Reload data to get accurate totals
+            setTimeout(loadData, 1000);
+        }
+
         function startTimerDisplay() {
             updateTimerDisplay();
             timerInterval = setInterval(() => {
@@ -1568,15 +2087,27 @@
         function updateTimerButton() {
             if (domCache.timerButton) {
                 if (isRunning) {
-                    domCache.timerButton.textContent = 'Stop Working';
+                    domCache.timerButton.textContent = 'Stop';
                     domCache.timerButton.classList.remove('start');
                     domCache.timerButton.classList.add('stop');
+                    domCache.timerButton.style.display = 'block';
                 } else {
                     domCache.timerButton.textContent = 'Start Working';
                     domCache.timerButton.classList.remove('stop');
                     domCache.timerButton.classList.add('start');
+                    domCache.timerButton.style.display = 'block';
                 }
             }
+        }
+
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('visible');
+            document.body.classList.add('loading');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('visible');
+            document.body.classList.remove('loading');
         }
 
         function formatTime(ms) {
@@ -1635,20 +2166,7 @@
                     showStatus('timerStatus', 'Timer is running from another device!', 'success');
                 } else if (!data.active && isRunning) {
                     // Timer was stopped on another device
-                    isRunning = false;
-                    startTime = null;
-                    localStorage.removeItem('timerStartTime');
-                    if (rafId) {
-                        cancelAnimationFrame(rafId);
-                        rafId = null;
-                    }
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                    if (domCache.timerDisplay) {
-                        domCache.timerDisplay.textContent = '00:00:00';
-                    }
-                    updateTimerButton();
-                    showStatus('timerStatus', 'Timer was stopped on another device', 'info');
+                    stopTimerFromOtherDevice();
                 }
             } catch (error) {
                 console.error('Error checking active timer:', error);
@@ -1661,8 +2179,11 @@
             console.log('Script URL:', scriptUrl);
 
             // Show loading overlay
-            document.getElementById('loadingOverlay').classList.add('visible');
-            document.querySelector('.loading-text').textContent = 'Saving session...';
+            showLoading();
+            const loadingText = document.querySelector('.loading-text');
+            if (loadingText) {
+                loadingText.textContent = 'Saving session...';
+            }
 
             const payload = {
                 action: 'saveSession',
@@ -1695,21 +2216,29 @@
                 console.error('Error saving session:', error);
                 showStatus('timerStatus', 'Error saving session. Check console for details.', 'error');
                 // Hide loading on error
-                document.getElementById('loadingOverlay').classList.remove('visible');
+                hideLoading();
             }
         }
 
         async function loadData() {
             console.log('Loading data from:', scriptUrl);
             console.log('Current user:', currentUser);
-            document.querySelector('.loading-text').textContent = 'Loading data...';
+            const loadingText = document.querySelector('.loading-text');
+            if (loadingText) {
+                loadingText.textContent = 'Loading data...';
+            }
+
+            // Show loading overlay only if not already visible
+            if (!document.getElementById('loadingOverlay').classList.contains('visible')) {
+                showLoading();
+            }
 
             try {
                 // Load data with username filter
-                const url = currentUser && currentUser.username 
+                const url = currentUser && currentUser.username
                     ? `${scriptUrl}?action=getData&username=${currentUser.username}`
                     : `${scriptUrl}?action=getData`;
-                    
+
                 console.log('Fetching from:', url);
                 const response = await fetch(url);
                 console.log('Response status:', response.status);
@@ -1718,7 +2247,7 @@
 
                 if (data.sessions) {
                     console.log('Sessions found:', data.sessions.length);
-                    
+
                     // Convert all session dates to UTC+7 format
                     data.sessions = data.sessions.map(session => {
                         if (session.date) {
@@ -1729,9 +2258,9 @@
                         }
                         return session;
                     });
-                    
+
                     console.log('Sessions after UTC+7 conversion:', data.sessions);
-                    
+
                     allSessions = data.sessions; // Store all sessions
                     updateStats(data.sessions);
                     updateHistory(data.sessions);
@@ -1742,11 +2271,11 @@
                 }
 
                 // Hide loading overlay
-                document.getElementById('loadingOverlay').classList.remove('visible');
+                hideLoading();
             } catch (error) {
                 console.error('Error loading data:', error);
                 // Hide loading overlay even on error
-                document.getElementById('loadingOverlay').classList.remove('visible');
+                hideLoading();
             }
         }
 
@@ -1760,8 +2289,11 @@
             const note = document.getElementById('noteArea').value;
 
             // Show loading overlay
-            document.getElementById('loadingOverlay').classList.add('visible');
-            document.querySelector('.loading-text').textContent = 'Saving note...';
+            showLoading();
+            const loadingText = document.querySelector('.loading-text');
+            if (loadingText) {
+                loadingText.textContent = 'Saving note...';
+            }
 
             try {
                 await fetch(scriptUrl, {
@@ -1781,11 +2313,11 @@
                 });
 
                 showStatus('noteStatus', 'Note saved!', 'success');
-                document.getElementById('loadingOverlay').classList.remove('visible');
+                hideLoading();
             } catch (error) {
                 console.error('Error saving note:', error);
                 showStatus('noteStatus', 'Error saving note', 'error');
-                document.getElementById('loadingOverlay').classList.remove('visible');
+                hideLoading();
             }
         }
 
@@ -1798,8 +2330,11 @@
             const date = document.getElementById('noteDate').value;
 
             // Show loading overlay
-            document.getElementById('loadingOverlay').classList.add('visible');
-            document.querySelector('.loading-text').textContent = 'Loading note...';
+            showLoading();
+            const loadingText = document.querySelector('.loading-text');
+            if (loadingText) {
+                loadingText.textContent = 'Loading note...';
+            }
 
             try {
                 const response = await fetch(`${scriptUrl}?action=getNote&date=${date}&username=${currentUser.username}`);
@@ -1811,10 +2346,10 @@
                     document.getElementById('noteArea').value = '';
                 }
 
-                document.getElementById('loadingOverlay').classList.remove('visible');
+                hideLoading();
             } catch (error) {
                 console.error('Error loading note:', error);
-                document.getElementById('loadingOverlay').classList.remove('visible');
+                hideLoading();
             }
         }
 
@@ -1961,6 +2496,7 @@
 
         // History table
         function updateHistory(sessions) {
+            // Update table (desktop)
             const tbody = document.getElementById('historyTableBody');
             tbody.innerHTML = '';
 
@@ -1995,6 +2531,44 @@
                 `;
                 tbody.appendChild(row);
             });
+
+            // Update cards (mobile)
+            const cardsContainer = document.getElementById('historyCards');
+            if (cardsContainer) {
+                cardsContainer.innerHTML = '';
+
+                recentSessions.forEach(session => {
+                    const card = document.createElement('div');
+                    card.className = 'history-card';
+                    const startDate = new Date(session.startTime);
+                    const endDate = new Date(session.endTime);
+
+                    card.innerHTML = `
+                        <div class="history-card-header">
+                            <div class="history-card-date">${startDate.toLocaleDateString('en-US', {
+                                weekday: 'short',
+                                month: 'short',
+                                day: 'numeric'
+                            })}</div>
+                            <div class="history-card-duration">${formatDuration(session.duration)}</div>
+                        </div>
+                        <div class="history-card-details">
+                            <div>Start: ${startDate.toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false
+                            })}</div>
+                            <div>End: ${endDate.toLocaleTimeString('en-US', {
+                                hour: '2-digit',
+                                minute: '2-digit',
+                                hour12: false
+                            })}</div>
+                        </div>
+                        ${session.note ? `<div class="history-card-note">${session.note}</div>` : ''}
+                    `;
+                    cardsContainer.appendChild(card);
+                });
+            }
         }
 
         // Calendar
