@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ROWRIC Tracker</title>
+    <link rel="icon" type="image/png" href="tracker logo.png">
     <style>
         :root {
             /* Apple Dark Theme Palette */
@@ -103,6 +104,20 @@
             color: var(--color-accent);
             font-weight: 600;
             margin-bottom: var(--space-xs);
+        }
+
+        .header-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-sm);
+        }
+
+        .header-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-md);
         }
 
         .clock-container {
@@ -945,7 +960,10 @@
         <div class="app-section hidden" id="appSection">
             <div class="header">
                 <div class="header-greeting" id="headerGreeting">Good Morning</div>
-                <h1>ROWRIC Tracker</h1>
+                <div class="header-title-row">
+                    <img src="tracker logo.png" alt="ROWRIC Tracker Logo" class="header-logo">
+                    <h1>ROWRIC Tracker</h1>
+                </div>
                 <div class="clock-container">
                     <div class="clock" id="utc7Clock">00:00:00</div>
                     <div class="clock-label">UTC+7</div>
@@ -1693,10 +1711,10 @@
             const todayStr = formatUTC7Date(today);
             const todayCell = document.querySelector(`.day-cell[data-date="${todayStr}"]`);
             
-            if (todayCell) {
-                // Get existing duration or start from 0
-                const existingDuration = parseFloat(todayCell.dataset.duration) || 0;
-                const newDuration = existingDuration + currentSessionDuration;
+            if (todayCell && window.storedTotals) {
+                // Calculate the correct duration: base today total + current session elapsed
+                const baseTodayDuration = window.storedTotals.todayTotal || 0;
+                const newDuration = baseTodayDuration + currentSessionDuration;
                 
                 // Update cell data
                 todayCell.dataset.duration = newDuration;
