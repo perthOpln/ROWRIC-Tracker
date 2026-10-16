@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ROWRIC Tracker</title>
-    <link rel="icon" type="image/png" href="tracker logo.png">
     <style>
         :root {
             /* Apple Dark Theme Palette */
@@ -67,6 +66,7 @@
             font-weight: 600;
             letter-spacing: -0.015em;
             min-height: 100vh;
+            contain: layout style paint;
         }
 
         .container {
@@ -74,6 +74,7 @@
             margin: 0 auto;
             background: var(--color-bg-secondary);
             min-height: 100vh;
+            contain: layout style paint;
         }
 
         /* Header */
@@ -82,6 +83,7 @@
             text-align: center;
             background: var(--color-bg-primary);
             position: relative;
+            contain: layout style;
         }
 
         .header h1 {
@@ -114,17 +116,12 @@
             margin-bottom: var(--space-sm);
         }
 
-        .header-logo {
-            width: 48px;
-            height: 48px;
-            border-radius: var(--radius-md);
-        }
-
         .clock-container {
             position: absolute;
             top: var(--space-xl);
             right: var(--space-xl);
             text-align: right;
+            will-change: contents;
         }
 
         .clock {
@@ -154,6 +151,7 @@
             min-height: 100vh;
             padding: var(--space-xl);
             background: var(--color-bg-primary);
+            contain: layout;
         }
 
         .auth-container {
@@ -163,6 +161,7 @@
             border: 1px solid var(--color-border);
             width: 100%;
             max-width: 400px;
+            contain: layout style;
         }
 
         .auth-container h1 {
@@ -262,6 +261,7 @@
             padding: var(--space-xl) var(--space-xl);
             text-align: center;
             background: var(--color-bg-primary);
+            contain: layout style;
         }
 
         .timer-display {
@@ -273,6 +273,7 @@
             letter-spacing: -0.05em;
             line-height: 1;
             font-variant-numeric: tabular-nums;
+            will-change: contents;
         }
 
         .timer-button {
@@ -307,6 +308,7 @@
             grid-template-columns: repeat(4, 1fr);
             gap: var(--space-md);
             background: var(--color-bg-primary);
+            contain: layout;
         }
 
         .stat-card {
@@ -314,6 +316,7 @@
             padding: var(--space-md);
             border-radius: var(--radius-lg);
             border: 1px solid var(--color-border);
+            contain: layout style;
         }
 
         .stat-card h3 {
@@ -338,6 +341,7 @@
             padding: var(--space-xl);
             background: var(--color-bg-secondary);
             border-top: 1px solid var(--color-border);
+            contain: layout style;
         }
 
         .calendar-controls {
@@ -487,6 +491,7 @@
             flex-direction: column;
             gap: var(--space-md);
             margin-top: var(--space-lg);
+            contain: layout;
         }
 
         .calendar-month {
@@ -526,9 +531,11 @@
 
         .calendar-grid {
             display: grid;
-            grid-template-columns: repeat(7, 30px);
+            grid-template-columns: repeat(7, 34px);
             gap: 4px;
-            justify-content: center;
+            justify-content: flex-start;
+            margin-left: 20px;
+            contain: layout;
         }
 
         .calendar-grid .day-label {
@@ -542,21 +549,18 @@
         }
 
         .calendar-grid .day-cell {
-            width: 20px;
-            height: 20px;
-            border-radius: 2px;
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
             background: var(--color-bg-tertiary);
             cursor: pointer;
             transition: background var(--transition-base);
-        }
-
-        .day-cell {
-            width: 10px;
-            height: 10px;
-            border-radius: 2px;
-            background: var(--color-bg-tertiary);
-            cursor: pointer;
-            transition: background var(--transition-base);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-text-tertiary);
         }
 
         .day-cell:hover {
@@ -580,6 +584,12 @@
         .day-cell.level-5 .day-number,
         .day-cell.level-5 .month-label {
             color: #000;
+        }
+
+        .day-number {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--color-text-tertiary);
         }
 
         .calendar-legend {
@@ -924,6 +934,31 @@
                 transition-duration: 0.01ms !important;
             }
         }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--color-bg-tertiary);
+            border-radius: var(--radius-sm);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--color-bg-elevated);
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--color-border);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--color-border-hover);
+        }
+
+        ::-webkit-scrollbar-corner {
+            background: var(--color-bg-tertiary);
+        }
     </style>
 </head>
 <body>
@@ -961,7 +996,6 @@
             <div class="header">
                 <div class="header-greeting" id="headerGreeting">Good Morning</div>
                 <div class="header-title-row">
-                    <img src="tracker logo.png" alt="ROWRIC Tracker Logo" class="header-logo">
                     <h1>ROWRIC Tracker</h1>
                 </div>
                 <div class="clock-container">
@@ -1088,6 +1122,54 @@
         let selectedMonth = null; // Currently selected month
         let currentUser = null; // Current logged in user
         let currentUserName = null; // User's display name
+        let rafId = null; // For requestAnimationFrame
+
+        // Initialize calendar to current month
+        function initializeCalendarDefaults() {
+            const today = getUTC7Date();
+            selectedYear = today.getFullYear();
+            selectedMonth = today.getMonth();
+        }
+
+        // DOM cache for performance
+        const domCache = {
+            timerDisplay: null,
+            timerButton: null,
+            utc7Clock: null,
+            headerGreeting: null,
+            todayTime: null,
+            weekTime: null,
+            monthTime: null,
+            totalTime: null,
+            calTotalTime: null,
+            calAvgTime: null,
+            calActiveDays: null,
+            calTotalDaysEl: null,
+            calBestDay: null,
+            calBestDayDate: null,
+            calTotalSessions: null,
+            calAvgDays: null
+        };
+
+        // Cache DOM elements on load
+        function cacheDOM() {
+            domCache.timerDisplay = document.getElementById('timerDisplay');
+            domCache.timerButton = document.getElementById('timerButton');
+            domCache.utc7Clock = document.getElementById('utc7Clock');
+            domCache.headerGreeting = document.getElementById('headerGreeting');
+            domCache.todayTime = document.getElementById('todayTime');
+            domCache.weekTime = document.getElementById('weekTime');
+            domCache.monthTime = document.getElementById('monthTime');
+            domCache.totalTime = document.getElementById('totalTime');
+            domCache.calTotalTime = document.getElementById('calTotalTime');
+            domCache.calAvgTime = document.getElementById('calAvgTime');
+            domCache.calActiveDays = document.getElementById('calActiveDays');
+            domCache.calTotalDaysEl = document.getElementById('calTotalDays');
+            domCache.calBestDay = document.getElementById('calBestDay');
+            domCache.calBestDayDate = document.getElementById('calBestDayDate');
+            domCache.calTotalSessions = document.getElementById('calTotalSessions');
+            domCache.calAvgDays = document.getElementById('calAvgDays');
+        }
 
         // Authentication
         function toggleAuthMode() {
@@ -1195,37 +1277,14 @@
                 const response = await fetch(`${scriptUrl}?action=getUser&username=${username}`);
                 const data = await response.json();
                 console.log('User data from backend:', data);
-                
-                if (data.name) {
-                    console.log('Found user name:', data.name);
-                    return data.name;
-                } else if (data.error) {
-                    console.error('Error fetching user:', data.error);
-                }
-                return null;
-            } catch (error) {
-                console.error('Error fetching user name:', error);
-                return null;
-            }
-        }
 
-        async function fetchUserName(username) {
-            try {
-                console.log('Fetching user name for:', username);
-                const response = await fetch(`${scriptUrl}?action=getUser&username=${username}`);
-                console.log('Response status:', response.status);
-                const data = await response.json();
-                console.log('User data from backend:', data);
-                
                 if (data.name) {
                     console.log('Found user name:', data.name);
                     return data.name;
                 } else if (data.error) {
                     console.error('Error fetching user:', data.error);
-                } else {
-                    console.error('Unexpected response format:', data);
                 }
-                return null; // Return null instead of 'User' so we can fallback to username
+                return null;
             } catch (error) {
                 console.error('Error fetching user name:', error);
                 return null;
@@ -1272,15 +1331,17 @@
             }
 
             const displayName = currentUserName || currentUser?.username || 'User';
-            document.getElementById('headerGreeting').textContent = `${greeting}, ${displayName}`;
+            if (domCache.headerGreeting) {
+                domCache.headerGreeting.textContent = `${greeting}, ${displayName}`;
+            }
         }
 
         // Update greeting every minute
         setInterval(updateGreeting, 60000);
 
-        // Event listeners for auth forms
-        document.getElementById('loginForm').addEventListener('submit', handleLogin);
-        document.getElementById('registerForm').addEventListener('submit', handleRegister);
+        // Event listeners for auth forms (passive for performance)
+        document.getElementById('loginForm').addEventListener('submit', handleLogin, { passive: true });
+        document.getElementById('registerForm').addEventListener('submit', handleRegister, { passive: true });
 
         // Check auth on page load
         checkAuth();
@@ -1311,20 +1372,27 @@
             return `${year}-${month}-${day}`;
         }
 
-        // Initialize UTC+7 clock
+        // Initialize UTC+7 clock with RAF for power efficiency
         function updateUTC7Clock() {
             const utc7 = getUTC7Date();
             const hours = String(utc7.getHours()).padStart(2, '0');
             const minutes = String(utc7.getMinutes()).padStart(2, '0');
             const seconds = String(utc7.getSeconds()).padStart(2, '0');
-            document.getElementById('utc7Clock').textContent = `${hours}:${minutes}:${seconds}`;
+            if (domCache.utc7Clock) {
+                domCache.utc7Clock.textContent = `${hours}:${minutes}:${seconds}`;
+            }
         }
 
-        setInterval(updateUTC7Clock, 1000);
-        updateUTC7Clock();
+        function clockLoop() {
+            updateUTC7Clock();
+            rafId = requestAnimationFrame(clockLoop);
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', () => {
+            // Cache DOM elements for performance
+            cacheDOM();
+
             // Show loading overlay
             document.getElementById('loadingOverlay').classList.add('visible');
 
@@ -1358,8 +1426,14 @@
             const today = getUTC7Date();
             document.getElementById('noteDate').value = getUTC7DateString(today);
 
+            // Initialize calendar to current month
+            initializeCalendarDefaults();
+
             // Check for auto-login
             checkAuth();
+
+            // Start RAF-based clock
+            clockLoop();
         });
 
         // Timer functions
@@ -1405,9 +1479,15 @@
             isRunning = false;
             startTime = null;
             localStorage.removeItem('timerStartTime');
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
             clearInterval(timerInterval);
             timerInterval = null;
-            document.getElementById('timerDisplay').textContent = '00:00:00';
+            if (domCache.timerDisplay) {
+                domCache.timerDisplay.textContent = '00:00:00';
+            }
             updateTimerButton();
             showStatus('timerStatus', 'Session saved!', 'success');
 
@@ -1429,19 +1509,22 @@
             const savedStartTime = localStorage.getItem('timerStartTime');
             const actualStartTime = savedStartTime ? new Date(savedStartTime) : startTime;
             const elapsed = now - actualStartTime;
-            document.getElementById('timerDisplay').textContent = formatTime(elapsed);
+            if (domCache.timerDisplay) {
+                domCache.timerDisplay.textContent = formatTime(elapsed);
+            }
         }
 
         function updateTimerButton() {
-            const button = document.getElementById('timerButton');
-            if (isRunning) {
-                button.textContent = 'Stop Working';
-                button.classList.remove('start');
-                button.classList.add('stop');
-            } else {
-                button.textContent = 'Start Working';
-                button.classList.remove('stop');
-                button.classList.add('start');
+            if (domCache.timerButton) {
+                if (isRunning) {
+                    domCache.timerButton.textContent = 'Stop Working';
+                    domCache.timerButton.classList.remove('start');
+                    domCache.timerButton.classList.add('stop');
+                } else {
+                    domCache.timerButton.textContent = 'Start Working';
+                    domCache.timerButton.classList.remove('stop');
+                    domCache.timerButton.classList.add('start');
+                }
             }
         }
 
@@ -1685,10 +1768,10 @@
         }
 
         function updateStatsDisplay(todayTotal, weekTotal, monthTotal, total) {
-            document.getElementById('todayTime').textContent = formatDuration(todayTotal);
-            document.getElementById('weekTime').textContent = formatDuration(weekTotal);
-            document.getElementById('monthTime').textContent = formatDuration(monthTotal);
-            document.getElementById('totalTime').textContent = formatDuration(total);
+            if (domCache.todayTime) domCache.todayTime.textContent = formatDuration(todayTotal);
+            if (domCache.weekTime) domCache.weekTime.textContent = formatDuration(weekTotal);
+            if (domCache.monthTime) domCache.monthTime.textContent = formatDuration(monthTotal);
+            if (domCache.totalTime) domCache.totalTime.textContent = formatDuration(total);
         }
 
         function updateTodayRealtime() {
@@ -1857,7 +1940,8 @@
                     <span class="year-total">${formatDuration(yearTotal)}</span>
                 `;
                 
-                item.onclick = () => {
+                item.onclick = (e) => {
+                    e.stopPropagation();
                     selectedYear = year;
                     selectedMonth = null; // Reset month when year changes
                     calendarTimeframe = 'year';
@@ -1917,7 +2001,8 @@
                     <span class="month-total">${formatDuration(monthTotal)}</span>
                 `;
                 
-                item.onclick = () => {
+                item.onclick = (e) => {
+                    e.stopPropagation();
                     selectedYear = year;
                     selectedMonth = month;
                     calendarTimeframe = 'month';
@@ -1961,11 +2046,11 @@
             document.getElementById('yearDropdown').classList.remove('show');
         }
 
-        // Close dropdowns when clicking outside
+        // Close dropdowns when clicking outside (passive for performance)
         document.addEventListener('click', () => {
             document.getElementById('yearDropdown').classList.remove('show');
             document.getElementById('monthDropdown').classList.remove('show');
-        });
+        }, { passive: true });
 
         function generateCalendar() {
             const calendar = document.getElementById('activityCalendar');
@@ -1986,11 +2071,32 @@
                     break;
                 case 'year':
                     if (selectedYear !== null) {
-                        startDate = new Date(selectedYear, 0, 1);
-                        endDate = new Date(selectedYear, 11, 31);
+                        // Find first month with data in this year
+                        const yearSessions = allSessions.filter(s => new Date(s.date).getFullYear() === selectedYear);
+                        if (yearSessions.length > 0) {
+                            const firstMonth = Math.min(...yearSessions.map(s => new Date(s.date).getMonth()));
+                            const lastMonth = Math.max(...yearSessions.map(s => new Date(s.date).getMonth()));
+                            startDate = new Date(selectedYear, firstMonth, 1);
+                            // End at current month or last month with data, whichever is earlier
+                            const currentMonth = today.getFullYear() === selectedYear ? today.getMonth() : 11;
+                            endDate = new Date(selectedYear, Math.min(lastMonth, currentMonth), new Date(selectedYear, Math.min(lastMonth, currentMonth) + 1, 0).getDate());
+                        } else {
+                            startDate = new Date(selectedYear, 0, 1);
+                            endDate = new Date(selectedYear, today.getFullYear() === selectedYear ? today.getMonth() : 11, new Date(selectedYear, today.getFullYear() === selectedYear ? today.getMonth() + 1 : 12, 0).getDate());
+                        }
                     } else {
-                        startDate = new Date(today.getFullYear(), 0, 1);
-                        endDate = new Date(today.getFullYear(), 11, 31);
+                        // Find first month with data in current year
+                        const currentYearSessions = allSessions.filter(s => new Date(s.date).getFullYear() === today.getFullYear());
+                        if (currentYearSessions.length > 0) {
+                            const firstMonth = Math.min(...currentYearSessions.map(s => new Date(s.date).getMonth()));
+                            const lastMonth = Math.max(...currentYearSessions.map(s => new Date(s.date).getMonth()));
+                            startDate = new Date(today.getFullYear(), firstMonth, 1);
+                            // End at current month or last month with data, whichever is earlier
+                            endDate = new Date(today.getFullYear(), Math.min(lastMonth, today.getMonth()), new Date(today.getFullYear(), Math.min(lastMonth, today.getMonth()) + 1, 0).getDate());
+                        } else {
+                            startDate = new Date(today.getFullYear(), 0, 1);
+                            endDate = new Date(today.getFullYear(), today.getMonth(), new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate());
+                        }
                     }
                     break;
                 case 'total':
@@ -2088,8 +2194,8 @@
                     emptyCell.className = 'day-cell';
                     emptyCell.style.visibility = 'hidden';
                     emptyCell.style.pointerEvents = 'none';
-                    emptyCell.style.width = '20px';
-                    emptyCell.style.height = '20px';
+                    emptyCell.style.width = '30px';
+                    emptyCell.style.height = '30px';
                     grid.appendChild(emptyCell);
                 }
 
@@ -2099,8 +2205,14 @@
                     cell.className = 'day-cell';
                     cell.dataset.date = formatUTC7Date(date);
 
-                    cell.addEventListener('mouseenter', (e) => showTooltip(e, date, cell));
-                    cell.addEventListener('mouseleave', hideTooltip);
+                    // Add date number
+                    const dayNumber = document.createElement('span');
+                    dayNumber.className = 'day-number';
+                    dayNumber.textContent = date.getDate();
+                    cell.appendChild(dayNumber);
+
+                    cell.addEventListener('mouseenter', (e) => showTooltip(e, date, cell), { passive: true });
+                    cell.addEventListener('mouseleave', hideTooltip, { passive: true });
 
                     grid.appendChild(cell);
                 });
@@ -2127,11 +2239,32 @@
                     break;
                 case 'year':
                     if (selectedYear !== null) {
-                        startDate = new Date(selectedYear, 0, 1);
-                        endDate = new Date(selectedYear, 11, 31);
+                        // Find first month with data in this year
+                        const yearSessions = allSessions.filter(s => new Date(s.date).getFullYear() === selectedYear);
+                        if (yearSessions.length > 0) {
+                            const firstMonth = Math.min(...yearSessions.map(s => new Date(s.date).getMonth()));
+                            const lastMonth = Math.max(...yearSessions.map(s => new Date(s.date).getMonth()));
+                            startDate = new Date(selectedYear, firstMonth, 1);
+                            // End at current month or last month with data, whichever is earlier
+                            const currentMonth = today.getFullYear() === selectedYear ? today.getMonth() : 11;
+                            endDate = new Date(selectedYear, Math.min(lastMonth, currentMonth), new Date(selectedYear, Math.min(lastMonth, currentMonth) + 1, 0).getDate());
+                        } else {
+                            startDate = new Date(selectedYear, 0, 1);
+                            endDate = new Date(selectedYear, today.getFullYear() === selectedYear ? today.getMonth() : 11, new Date(selectedYear, today.getFullYear() === selectedYear ? today.getMonth() + 1 : 12, 0).getDate());
+                        }
                     } else {
-                        startDate = new Date(today.getFullYear(), 0, 1);
-                        endDate = new Date(today.getFullYear(), 11, 31);
+                        // Find first month with data in current year
+                        const currentYearSessions = allSessions.filter(s => new Date(s.date).getFullYear() === today.getFullYear());
+                        if (currentYearSessions.length > 0) {
+                            const firstMonth = Math.min(...currentYearSessions.map(s => new Date(s.date).getMonth()));
+                            const lastMonth = Math.max(...currentYearSessions.map(s => new Date(s.date).getMonth()));
+                            startDate = new Date(today.getFullYear(), firstMonth, 1);
+                            // End at current month or last month with data, whichever is earlier
+                            endDate = new Date(today.getFullYear(), Math.min(lastMonth, today.getMonth()), new Date(today.getFullYear(), Math.min(lastMonth, today.getMonth()) + 1, 0).getDate());
+                        } else {
+                            startDate = new Date(today.getFullYear(), 0, 1);
+                            endDate = new Date(today.getFullYear(), today.getMonth(), new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate());
+                        }
                     }
                     break;
                 case 'total':
@@ -2212,11 +2345,32 @@
                     break;
                 case 'year':
                     if (selectedYear !== null) {
-                        startDate = new Date(selectedYear, 0, 1);
-                        endDate = new Date(selectedYear, 11, 31);
+                        // Find first month with data in this year
+                        const yearSessions = allSessions.filter(s => new Date(s.date).getFullYear() === selectedYear);
+                        if (yearSessions.length > 0) {
+                            const firstMonth = Math.min(...yearSessions.map(s => new Date(s.date).getMonth()));
+                            const lastMonth = Math.max(...yearSessions.map(s => new Date(s.date).getMonth()));
+                            startDate = new Date(selectedYear, firstMonth, 1);
+                            // End at current month or last month with data, whichever is earlier
+                            const currentMonth = today.getFullYear() === selectedYear ? today.getMonth() : 11;
+                            endDate = new Date(selectedYear, Math.min(lastMonth, currentMonth), new Date(selectedYear, Math.min(lastMonth, currentMonth) + 1, 0).getDate());
+                        } else {
+                            startDate = new Date(selectedYear, 0, 1);
+                            endDate = new Date(selectedYear, today.getFullYear() === selectedYear ? today.getMonth() : 11, new Date(selectedYear, today.getFullYear() === selectedYear ? today.getMonth() + 1 : 12, 0).getDate());
+                        }
                     } else {
-                        startDate = new Date(today.getFullYear(), 0, 1);
-                        endDate = new Date(today.getFullYear(), 11, 31);
+                        // Find first month with data in current year
+                        const currentYearSessions = allSessions.filter(s => new Date(s.date).getFullYear() === today.getFullYear());
+                        if (currentYearSessions.length > 0) {
+                            const firstMonth = Math.min(...currentYearSessions.map(s => new Date(s.date).getMonth()));
+                            const lastMonth = Math.max(...currentYearSessions.map(s => new Date(s.date).getMonth()));
+                            startDate = new Date(today.getFullYear(), firstMonth, 1);
+                            // End at current month or last month with data, whichever is earlier
+                            endDate = new Date(today.getFullYear(), Math.min(lastMonth, today.getMonth()), new Date(today.getFullYear(), Math.min(lastMonth, today.getMonth()) + 1, 0).getDate());
+                        } else {
+                            startDate = new Date(today.getFullYear(), 0, 1);
+                            endDate = new Date(today.getFullYear(), today.getMonth(), new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate());
+                        }
                     }
                     break;
                 case 'total':
@@ -2254,32 +2408,32 @@
                 }
             }
 
-            // Update stats display
-            document.getElementById('calTotalTime').textContent = formatDuration(totalTime);
-            document.getElementById('calTotalSessions').textContent = activeDays + ' Sessions';
-            
+            // Update stats display using DOM cache
+            if (domCache.calTotalTime) domCache.calTotalTime.textContent = formatDuration(totalTime);
+            if (domCache.calTotalSessions) domCache.calTotalSessions.textContent = activeDays + ' Sessions';
+
             const avgTime = activeDays > 0 ? totalTime / activeDays : 0;
-            document.getElementById('calAvgTime').textContent = formatDuration(avgTime);
-            document.getElementById('calAvgDays').textContent = activeDays + ' Days';
-            
+            if (domCache.calAvgTime) domCache.calAvgTime.textContent = formatDuration(avgTime);
+            if (domCache.calAvgDays) domCache.calAvgDays.textContent = activeDays + ' Days';
+
             if (bestDay.date) {
                 const bestDate = new Date(bestDay.date);
-                document.getElementById('calBestDay').textContent = formatDuration(bestDay.duration);
-                document.getElementById('calBestDayDate').textContent = bestDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                if (domCache.calBestDay) domCache.calBestDay.textContent = formatDuration(bestDay.duration);
+                if (domCache.calBestDayDate) domCache.calBestDayDate.textContent = bestDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             } else {
-                document.getElementById('calBestDay').textContent = '--';
-                document.getElementById('calBestDayDate').textContent = '--';
+                if (domCache.calBestDay) domCache.calBestDay.textContent = '--';
+                if (domCache.calBestDayDate) domCache.calBestDayDate.textContent = '--';
             }
-            
-            document.getElementById('calActiveDays').textContent = activeDays;
-            
+
+            if (domCache.calActiveDays) domCache.calActiveDays.textContent = activeDays;
+
             if (calendarTimeframe === 'total') {
                 // Show "Since dd.mm.yyyy" for total timeframe
                 const sinceDate = startDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-                document.getElementById('calTotalDays').textContent = `Since ${sinceDate}`;
+                if (domCache.calTotalDaysEl) domCache.calTotalDaysEl.textContent = `Since ${sinceDate}`;
             } else {
                 // Show "x total" for other timeframes
-                document.getElementById('calTotalDays').textContent = totalDays + ' total';
+                if (domCache.calTotalDaysEl) domCache.calTotalDaysEl.textContent = totalDays + ' total';
             }
         }
 
