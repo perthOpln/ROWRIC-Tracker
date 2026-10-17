@@ -2270,6 +2270,12 @@
         }
 
         function startTimer() {
+            // Check if there's already an active timer from another device
+            if (isRunning || localStorage.getItem('timerStartTime')) {
+                showStatus('timerStatus', 'Timer is already running', 'error');
+                return;
+            }
+
             startTime = new Date();
             isRunning = true;
             localStorage.setItem('timerStartTime', startTime.toISOString());
@@ -2282,6 +2288,12 @@
         }
 
         function stopTimer() {
+            // Check if timer is actually running
+            if (!isRunning && !localStorage.getItem('timerStartTime')) {
+                showStatus('timerStatus', 'Timer is not running', 'error');
+                return;
+            }
+
             const endTime = new Date();
             // Use the actual start time from localStorage to calculate accurate duration
             // This works even if the page was closed
@@ -2338,8 +2350,8 @@
             updateTimerButton();
             showStatus('timerStatus', 'Timer was stopped on another device', 'info');
 
-            // Reload data to get accurate totals
-            setTimeout(loadData, 1000);
+            // Reload data to get accurate totals (same delay as stopTimer)
+            setTimeout(loadData, 2500);
         }
 
         function startTimerDisplay() {
@@ -2555,6 +2567,8 @@
                 } else if (!data.active && isRunning) {
                     // Timer was stopped on another device
                     stopTimerFromOtherDevice();
+                    // Reload data immediately to get the new session
+                    setTimeout(loadData, 2500);
                 }
             } catch (error) {
                 console.error('Error checking active timer:', error);
