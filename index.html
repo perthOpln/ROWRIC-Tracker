@@ -257,13 +257,13 @@
 
         .fullscreen-mode .clock-container {
             position: absolute;
-            top: var(--space-md);
+            top: calc(var(--space-xl) + var(--space-md));
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 2px;
             z-index: 10;
         }
 
@@ -275,18 +275,18 @@
         }
 
         .fullscreen-mode .clock-date {
-            font-size: 16px;
+            font-size: 13px;
             margin-bottom: 0;
             color: var(--color-text-secondary);
         }
 
         .fullscreen-mode .clock {
-            font-size: 36px;
+            font-size: 28px;
             color: var(--color-accent);
         }
 
         .fullscreen-mode .clock-label {
-            font-size: 12px;
+            font-size: 10px;
             color: var(--color-text-tertiary);
         }
 
@@ -346,16 +346,20 @@
                 font-size: 16px;
             }
 
+            .fullscreen-mode .clock-container {
+                top: var(--space-xl);
+            }
+
             .fullscreen-mode .clock {
-                font-size: 28px;
+                font-size: 24px;
             }
 
             .fullscreen-mode .clock-date {
-                font-size: 14px;
+                font-size: 12px;
             }
 
             .fullscreen-mode .clock-label {
-                font-size: 10px;
+                font-size: 9px;
             }
         }
 
@@ -385,19 +389,19 @@
             }
 
             .fullscreen-mode .clock-container {
-                top: var(--space-sm);
+                top: calc(var(--space-lg) + var(--space-sm));
             }
 
             .fullscreen-mode .clock {
-                font-size: 24px;
+                font-size: 20px;
             }
 
             .fullscreen-mode .clock-date {
-                font-size: 12px;
+                font-size: 11px;
             }
 
             .fullscreen-mode .clock-label {
-                font-size: 10px;
+                font-size: 9px;
             }
         }
 
