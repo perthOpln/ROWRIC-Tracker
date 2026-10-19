@@ -307,6 +307,11 @@
             line-height: 1;
         }
 
+        .fullscreen-mode .timer-start-time {
+            font-size: 16px;
+            margin-bottom: var(--space-sm);
+        }
+
         .fullscreen-mode .timer-button {
             padding: 16px 48px;
             font-size: 18px;
@@ -539,6 +544,14 @@
             line-height: 1;
             font-variant-numeric: tabular-nums;
             will-change: contents;
+        }
+
+        .timer-start-time {
+            font-size: 13px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            font-family: var(--font-family-mono);
         }
 
         .timer-button {
@@ -1331,6 +1344,10 @@
                 font-size: 56px;
             }
 
+            .timer-start-time {
+                font-size: 12px;
+            }
+
             .timer-button {
                 padding: 14px 40px;
                 font-size: 16px;
@@ -1451,6 +1468,10 @@
 
             .timer-display {
                 font-size: 48px;
+            }
+
+            .timer-start-time {
+                font-size: 11px;
             }
 
             .timer-button {
@@ -1666,6 +1687,10 @@
                 font-size: 42px;
             }
 
+            .timer-start-time {
+                font-size: 10px;
+            }
+
             .calendar-grid {
                 grid-template-columns: repeat(7, 24px);
             }
@@ -1770,6 +1795,7 @@
 
             <div class="timer-section">
                 <div class="timer-display" id="timerDisplay">00:00:00</div>
+                <div class="timer-start-time" id="timerStartTime"></div>
                 <button class="timer-button start" id="timerButton" onclick="toggleTimer()">Start Working</button>
                 <div id="timerStatus" class="status-message"></div>
             </div>
@@ -1889,7 +1915,8 @@
         let selectedMonth = null; // Currently selected month
         let currentUser = null; // Current logged in user
         let currentUserName = null; // User's display name
-        let rafId = null; // For requestAnimationFrame
+        let clockRafId = null; // For clock requestAnimationFrame
+        let timerRafId = null; // For timer requestAnimationFrame
         let timerCheckInterval = null; // For polling timer state
 
         // Initialize calendar to current month
@@ -1903,6 +1930,7 @@
         const domCache = {
             timerDisplay: null,
             timerButton: null,
+            timerStartTime: null,
             utc7Clock: null,
             headerGreeting: null,
             todayTime: null,
@@ -1923,6 +1951,7 @@
         function cacheDOM() {
             domCache.timerDisplay = document.getElementById('timerDisplay');
             domCache.timerButton = document.getElementById('timerButton');
+            domCache.timerStartTime = document.getElementById('timerStartTime');
             domCache.utc7Clock = document.getElementById('utc7Clock');
             domCache.headerGreeting = document.getElementById('headerGreeting');
             domCache.todayTime = document.getElementById('todayTime');
@@ -2166,6 +2195,15 @@
             return `${year}-${month}-${day}`;
         }
 
+        function formatUTC7Time(date) {
+            const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+            const utc7Date = new Date(utc + (3600000 * 7));
+            const hours = String(utc7Date.getHours()).padStart(2, '0');
+            const minutes = String(utc7Date.getMinutes()).padStart(2, '0');
+            const seconds = String(utc7Date.getSeconds()).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        }
+
         // Initialize UTC+7 clock with RAF for power efficiency
         function updateUTC7Clock() {
             const utc7 = getUTC7Date();
@@ -2206,7 +2244,7 @@
 
         function clockLoop() {
             updateUTC7Clock();
-            rafId = requestAnimationFrame(clockLoop);
+            clockRafId = requestAnimationFrame(clockLoop);
         }
 
         // Initialize
@@ -2231,6 +2269,7 @@
                 startTime = new Date(savedStartTime);
                 isRunning = true;
                 updateTimerButton();
+                updateStartTimeDisplay();
                 startTimerDisplay();
                 showStatus('timerStatus', 'Timer is running!', 'success');
             } else if (currentUser) {
@@ -2284,6 +2323,7 @@
             saveTimerState('start', startTime.toISOString());
 
             updateTimerButton();
+            updateStartTimeDisplay();
             startTimerDisplay();
         }
 
@@ -2317,9 +2357,9 @@
             isRunning = false;
             startTime = null;
             localStorage.removeItem('timerStartTime');
-            if (rafId) {
-                cancelAnimationFrame(rafId);
-                rafId = null;
+            if (timerRafId) {
+                cancelAnimationFrame(timerRafId);
+                timerRafId = null;
             }
             clearInterval(timerInterval);
             timerInterval = null;
@@ -2327,6 +2367,7 @@
                 domCache.timerDisplay.textContent = '00:00:00';
             }
             updateTimerButton();
+            clearStartTimeDisplay();
             showStatus('timerStatus', 'Session saved!', 'success');
 
             // Reload data to get accurate totals
@@ -2338,9 +2379,9 @@
             isRunning = false;
             startTime = null;
             localStorage.removeItem('timerStartTime');
-            if (rafId) {
-                cancelAnimationFrame(rafId);
-                rafId = null;
+            if (timerRafId) {
+                cancelAnimationFrame(timerRafId);
+                timerRafId = null;
             }
             clearInterval(timerInterval);
             timerInterval = null;
@@ -2348,6 +2389,7 @@
                 domCache.timerDisplay.textContent = '00:00:00';
             }
             updateTimerButton();
+            clearStartTimeDisplay();
             showStatus('timerStatus', 'Timer was stopped on another device', 'info');
 
             // Reload data to get accurate totals (same delay as stopTimer)
@@ -2407,6 +2449,34 @@
                         fsButton.classList.remove('stop');
                         fsButton.classList.add('start');
                     }
+                }
+            }
+        }
+
+        function updateStartTimeDisplay() {
+            if (startTime) {
+                if (domCache.timerStartTime) {
+                    domCache.timerStartTime.textContent = `Started at ${formatUTC7Time(startTime)}`;
+                }
+                // Update fullscreen start time if active
+                if (isFullscreen && fullscreenContainer) {
+                    const fsStartTime = fullscreenContainer.querySelector('#timerStartTime');
+                    if (fsStartTime) {
+                        fsStartTime.textContent = `Started at ${formatUTC7Time(startTime)}`;
+                    }
+                }
+            }
+        }
+
+        function clearStartTimeDisplay() {
+            if (domCache.timerStartTime) {
+                domCache.timerStartTime.textContent = '';
+            }
+            // Clear fullscreen start time if active
+            if (isFullscreen && fullscreenContainer) {
+                const fsStartTime = fullscreenContainer.querySelector('#timerStartTime');
+                if (fsStartTime) {
+                    fsStartTime.textContent = '';
                 }
             }
         }
@@ -2491,6 +2561,13 @@
                 if (originalDate) date.textContent = originalDate.textContent;
             }
 
+            // Update start time in fullscreen
+            const originalStartTime = document.getElementById('timerStartTime');
+            const fsStartTime = fullscreenContainer.querySelector('#timerStartTime');
+            if (originalStartTime && fsStartTime) {
+                fsStartTime.textContent = originalStartTime.textContent;
+            }
+
             isFullscreen = true;
         }
 
@@ -2562,6 +2639,7 @@
                     isRunning = true;
                     localStorage.setItem('timerStartTime', startTime.toISOString());
                     updateTimerButton();
+                    updateStartTimeDisplay();
                     startTimerDisplay();
                     showStatus('timerStatus', 'Timer is running from another device!', 'success');
                 } else if (!data.active && isRunning) {
