@@ -2160,7 +2160,14 @@
                     authSection.classList.add('hidden');
                     appSection.classList.remove('hidden');
                     updateGreeting();
+                    
+                    // Clear localStorage timer state to prioritize Google Sheets
+                    localStorage.removeItem('timerStartTime');
+                    
                     loadData();
+
+                    // Check Google Sheets immediately for active timer (don't rely on localStorage)
+                    checkActiveTimer();
 
                     // Start polling for timer state changes (every 5 seconds)
                     timerCheckInterval = setInterval(checkActiveTimer, 5000);
@@ -2290,18 +2297,21 @@
             // Check for auto-login
             checkAuth();
 
-            // Check if there's an active timer (keep this for timer persistence)
-            const savedStartTime = localStorage.getItem('timerStartTime');
-            if (savedStartTime) {
-                startTime = new Date(savedStartTime);
-                isRunning = true;
-                updateTimerButton();
-                updateStartTimeDisplay();
-                startTimerDisplay();
-                showStatus('timerStatus', 'Timer is running!', 'success');
-            } else if (currentUser) {
-                // Check for active timer from other devices
+            // Priority: Check Google Sheets first for cross-device sync, then fallback to localStorage
+            if (currentUser) {
+                // Always check Google Sheets first when user is logged in
                 checkActiveTimer();
+            } else {
+                // Only use localStorage for single-device scenarios (before login)
+                const savedStartTime = localStorage.getItem('timerStartTime');
+                if (savedStartTime) {
+                    startTime = new Date(savedStartTime);
+                    isRunning = true;
+                    updateTimerButton();
+                    updateStartTimeDisplay();
+                    startTimerDisplay();
+                    showStatus('timerStatus', 'Timer is running!', 'success');
+                }
             }
 
             // Hide loading overlay (no auto-load)
@@ -2336,11 +2346,14 @@
         }
 
         function startTimer() {
-            // Check if there's already an active timer from another device
-            if (isRunning || localStorage.getItem('timerStartTime')) {
+            // Check if there's already an active timer locally
+            if (isRunning) {
                 showStatus('timerStatus', 'Timer is already running', 'error');
                 return;
             }
+
+            // Clear localStorage to prioritize Google Sheets state
+            localStorage.removeItem('timerStartTime');
 
             startTime = new Date();
             isRunning = true;
